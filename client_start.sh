@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ping -c 4 $server_clientFirewallNet
+screen -d -m -S client ping -c 4 $server_private
