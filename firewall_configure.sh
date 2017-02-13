@@ -1,3 +1,6 @@
 #!/bin/bash
 
-ping -c 4 $firewall_private
+sudo route del default
+sudo route add default gw $firewall_private
+echo "Displaying routing table:"
+route -n
