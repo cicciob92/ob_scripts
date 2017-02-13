@@ -15,6 +15,8 @@ sudo route del default
 echo "executing command: sudo dhclient -v $wan_side_port"
 sudo dhclient -v $wan_side_port
 
+echo "executing command: sudo sysctl -w net.ipv4.ip_forward=1"
+sudo sysctl -w net.ipv4.ip_forward=1
 echo "executing command: iptables -t nat -A POSTROUTING -o $wan_side_port -j MASQUERADE"
 iptables -t nat -A POSTROUTING -o $wan_side_port -j MASQUERADE
 
