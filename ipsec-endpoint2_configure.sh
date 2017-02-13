@@ -4,32 +4,35 @@ user_side_port="$(ifconfig | grep -B 1 $private | head -1 | awk {'print($1)'})"
 wan_side_port="$(ifconfig | grep -B 1 $altra | head -1 | awk {'print($1)'})"
 default_gw="$(route -n | grep "UG" | head -1 | awk {'print($2)'})"
 broker_ip="$(cat /etc/openbaton/ems/conf.ini | grep broker_ip | awk -F "=" {'print($2)'})"
-user_net=echo $private | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}'
-external_net=echo $altra | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}'
-peer_user_net=echo $ipsecEndpoint2_private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}'
+user_net="$(echo $private | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+external_net="$(echo $altra | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+peer_user_net="$(echo $ipsec_endpoint2_private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
 
 #enable ipv4 forwarding
 sysctl -w net.ipv4.ip_forward=1
 
 #set SAD and SPD
 echo "setting ipsec keys"
-echo "add $altra $ipsecEndpoint2_altra esp 0x1001 -m tunnel -u 100	-E aes-cbc 0xaa112233445566778811223344556677;" > setKey.conf
-echo "add $ipsecEndpoint2_altra $altra esp 0x2001 -m tunnel -u 101 -E aes-cbc 0xbb112233445566778811223344556677;" >> setKey.conf
-echo "spdadd $user_net $external_net any -P out ipsec esp/tunnel/$altra-$ipsecEndpoint2_altra/unique:100;" >> setKey.conf
-echo "spdadd $external_net $user_net any -P in ipsec esp/tunnel/$ipsecEndpoint2_altra-$altra/unique:101;" >> setKey.conf
-setkey -f setkey.conf
+echo "add $altra $ipsec_endpoint2_altra esp 0x1001 -m tunnel -u 100 -E aes-cbc 0xaa112233445566778811223344556677;" > setKey.conf
+echo "add $ipsec_endpoint2_altra $altra esp 0x2001 -m tunnel -u 101 -E aes-cbc 0xbb112233445566778811223344556677;" >> setKey.conf
+echo "spdadd $user_net $external_net any -P out ipsec esp/tunnel/$altra-$ipsec_endpoint2_altra/unique:100;" >> setKey.conf
+echo "spdadd $external_net $user_net any -P in ipsec esp/tunnel/$ipsec_endpoint2_altra-$altra/unique:101;" >> setKey.conf
+setkey -f setKey.conf
 
 #set the right default gateway
 echo "Setting the right route entries"
-sudo route add -host $broker_ip gw $default_gw
-sudo route del default
+route add -host $broker_ip gw $default_gw
+route del default
+dhclient -v $wan_side_port
+new_default_gw="$(route -n | grep "UG" | head -1 | awk {'print($2)'})"
+route del default
 
 #create table for policy-based routing
 table="pbtable"
-echo -e $table >> /etc/iproute2/rt_tables
+echo -e "1\t$table" >> /etc/iproute2/rt_tables
 
 #outgoing traffic
-ip route add default via $default_gw dev $wan_side_port table $table
+ip route add default via $new_default_gw dev $wan_side_port table $table
 
 #set entry from the VPN network to the local host
 ip route add $peer_user_net via $private dev $user_side_port table $table
