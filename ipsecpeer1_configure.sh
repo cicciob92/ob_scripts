@@ -1,9 +1,7 @@
 #!/bin/bash
 
-user_side_port="$(ifconfig | grep -B 1 $private2 | head -1 | awk {'print($1)'})"
-wan_side_port="$(ifconfig | grep -B 1 $altra | head -1 | awk {'print($1)'})"
-user_net="$(echo $private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
-external_net="$(echo $altra | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+peer1_user_net="$(echo $ipsecpeer1_private | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+peer2_user_net="$(echo $private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
 
 #enable ipv4 forwarding
 sysctl -w net.ipv4.ip_forward=1
@@ -23,15 +21,21 @@ conn %default
    mobike=no
 
 conn net-net
-   left=$altra
+   left=$ipsecpeer1_altra
    leftid=@moon.strongswan.org
-   leftsubnet=$user_net
+   leftsubnet=$peer1_user_net
    leftfirewall=yes
-   right=$ipsec_peer1_altra
-   rightsubnet=$external_net
+   right=$altra
+   rightsubnet=$peer2_user_net
    rightid=@sun.strongswan.org
    auto=start" > ipsec.conf
 
+echo "# /etc/ipsec.secrets - strongSwan IPsec secrets file
+@moon.strongswan.org @sun.strongswan.org : PSK 0sv+NkxY9LLZvwj4qCC2o/gGrWDF2d21jL" > /etc/ipsec.secrets
 
+echo "listing file ipsec.conf:"
+cat ipsec.conf
+
+ipsec stop
 ipsec start --conf ipsec.conf
 
