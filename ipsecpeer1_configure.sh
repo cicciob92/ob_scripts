@@ -1,7 +1,7 @@
 #!/bin/bash
 
-peer1_user_net="$(echo $ipsecpeer1_private | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
-peer2_user_net="$(echo $private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+peer1_user_net="$(echo $ipsecpeer1_private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+peer2_user_net="$(echo $private4 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
 
 #enable ipv4 forwarding
 sysctl -w net.ipv4.ip_forward=1
