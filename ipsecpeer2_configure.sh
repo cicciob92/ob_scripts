@@ -4,6 +4,9 @@ peer1_user_net="$(echo $private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24
 peer2_user_net="$(echo $ipsecpeer2_private | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
 wan_side_port="$(ifconfig | grep -B 1 $softfire_internal | head -1 | awk {'print($1)'})"
 dhclient -v $wan_side_port
+gw="$(route -n | grep "UG " | head -1 | awk {'print($2)'})"
+route del default
+route add -host $ipsecpeer2_softfire_internal_floatingIp gw $gw
 
 #enable ipv4 forwarding
 sysctl -w net.ipv4.ip_forward=1
