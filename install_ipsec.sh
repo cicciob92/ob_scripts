@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo apt-get update && sudo apt-get install -y strongswan
+apt-get install -y strongswan

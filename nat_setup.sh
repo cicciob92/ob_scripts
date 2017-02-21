@@ -1,7 +1,7 @@
 #!/bin/bash
 
-user_side_port="$(ifconfig | grep -B 1 $private4 | head -1 | awk {'print($1)'})"
-wan_side_port="$(ifconfig | grep -B 1 $private5 | head -1 | awk {'print($1)'})"
+user_side_port="$(ifconfig | grep -B 1 $private | head -1 | awk {'print($1)'})"
+wan_side_port="$(ifconfig | grep -B 1 $private2 | head -1 | awk {'print($1)'})"
 
 echo "user_side_port: $user_side_port"
 echo "wan_side_port: $wan_side_port"
