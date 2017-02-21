@@ -31,7 +31,7 @@ conn net-net
    leftsubnet=$peer1_user_net
    leftfirewall=yes
    right=$softfire_internal
-   rightsubnet=0.0.0.0/0
+   rightsubnet=$peer2_user_net
    rightid=@sun.strongswan.org
    auto=start" > ipsec.conf
 
