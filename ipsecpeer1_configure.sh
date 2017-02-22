@@ -1,6 +1,6 @@
 #!/bin/bash
 
-peer1_user_net="$(echo $ipsecpeer1_private2 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
+peer1_user_net="$(echo $ipsecpeer1_private3 | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
 peer2_user_net="$(echo $private | awk -F "." '{OFS = ".";}{print $1,$2,$3,"0/24"}')"
 wan_side_port="$(ifconfig | grep -B 1 $softfire_internal | head -1 | awk {'print($1)'})"
 dhclient -v $wan_side_port
